@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/utils/supabase';
 import twilio from 'twilio';
 
-const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-
 function getDistanceFromLatLonInM(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371e3;
   const dLat = (lat2 - lat1) * (Math.PI/180);
@@ -37,6 +35,15 @@ export async function POST(req: Request) {
         const message = `🚨 Civic Alert: ${project.work_type} ('${project.title}') is scheduled near your registered location starting ${new Date(project.planned_start).toLocaleDateString()}. Expect temporary disruption.`;
         
         try {
+          // Initialize Twilio client dynamically to avoid build-time errors when env vars are missing
+          if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
+            console.log('Mocking SMS:', message);
+            sentCount++;
+            continue;
+          }
+          
+          const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
           if (sub.channel === 'WHATSAPP') {
             await client.messages.create({
               body: message,
