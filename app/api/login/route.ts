@@ -23,6 +23,7 @@ export async function POST(req: Request) {
       user: {
         id: user.id.toString(),
         name: user.name,
+        username: user.username,
         role: user.role,
         department_id: user.department_id
       }

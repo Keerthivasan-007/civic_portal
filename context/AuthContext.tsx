@@ -8,6 +8,7 @@ export type Role = 'PUBLIC' | 'AUTHORITY' | 'UTILITY_WORKER';
 export interface User {
   id: string;
   name: string;
+  username: string;
   role: Role;
   department_id?: number;
 }
